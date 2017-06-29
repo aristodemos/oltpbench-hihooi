@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+//TO COMPILE:
+//protoc --java_out="." hihMessages.proto
+
+message ReadQueryRequest{
+    int64 transetid = 1; //int64 is java long
+    string query = 2;
+
+    enum DobjType {
+        TDO = 0;
+        PDO = 1;
+        SDO = 2;
+    }
+
+    message DirtyObj {
+        DobjType type = 1;
+        repeated string x = 2;
+    }
+    repeated DirtyObj dobj = 3;
+}
+
+message TransactionSet{
+    int64 transetid = 1;
+    repeated string writeStatement = 2;
+}
+
+
+message HihQueryResultSet{
+    int64 seqno = 1;
+    HihColumnNames columns = 2;
+    repeated HihRowSet rows = 3;
+}
+
+//a single row of results;
+//also note that : "repeated" in protobuf(java) internally maintains order (someone said on github)
+message HihRowSet{
+    repeated string value = 1;
+}
+
+// like table Meta Data - specifies the name of each column;
+message HihColumnNames{
+    repeated string name = 1;
+}

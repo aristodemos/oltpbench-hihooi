@@ -1,0 +1,59 @@
+TABLES:
+	DISTRICT
+	OPEN_ORDER
+	WAREHOUSE
+	CUSTOMER
+	ORDER_LINE
+	NEW_ORDER
+	STOCK
+	HISTORY
+	ITEM
+
+Transaction Details:
+1)	Delivery Transaction (operation - table_name):
+	* runs in loop (x10)
+		*select new_order     [NO_O_ID] WHERE [NO_D_ID, NO_W_ID]
+		*delete new_order     [*] WHERE [NO_O_ID, NO_D_ID, NO_W_ID]
+		*select open_order    [O_C_ID] WHERE [O_ID, O_D_ID, O_W_ID]
+		*update open_order    [O_CARRIER_ID] WHERE [O_ID, O_D_ID, O_W_ID]
+		*update order_line    [OL_DELIVERY_D] WHERE [OL_O_ID, OL_D_ID, OL_W_ID]
+		*select order_line    [OL_AMOUNT] WHERE [OL_O_ID, OL_D_ID, OL_W_ID]
+		*update customer      [C_BALANCE, C_DELIVERY_CNT] WHERE [C_W_ID, C_D_ID, C_ID]
+
+
+2)	New Order Transaction
+	* runs in loop (x10)
+		select customer, warehouse    [C_DISCOUNT, C_LAST, C_CREDIT, W_TAX] WHERE [W_ID, C_W_ID, C_D_ID, C_ID]
+		select district               [D_NEXT_O_ID, D_TAX] WHERE  [D_W_ID, D_ID]
+		insert new_order              [*]
+		update district               [D_NEXT_O_ID] WHERE [D_W_ID, D_ID]
+		insert open_order             [*]
+		*select item                  [I_PRICE, I_NAME , I_DATA] WHERE [I_ID]
+		*select stock                 [S_QUANTITY, S_DATA, S_DIST_01, S_DIST_02, S_DIST_03, S_DIST_04, S_DIST_05,S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10]
+                                        WHERE [S_I_ID, S_W_ID]
+		*update stock                 [S_QUANTITY, S_YTD, S_ORDER_CNT, S_REMOTE_CNT] WHERE [S_I_ID, S_W_ID]
+		*insert order_line            [*]
+
+3) 	Payment Transaction
+		update warehouse              [W_YTD] WHERE [W_ID]
+		select warehouse              [W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_NAME] WHERE [W_ID]
+		update district               [D_YTD] WHERE [D_W_ID,D_ID]
+		select district               [D_STREET_1, D_STREET_2, D_CITY, D_STATE, D_ZIP, D_NAME] WHERE [D_W_ID,D_ID]
+		select customer               [C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2,C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT,
+                                        C_CREDIT_LIM, C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE]
+                                        WHERE [C_W_ID, C_D_ID, C_ID]
+        select customer                [C_DATA] WHERE [C_W_ID, C_D_ID, C_ID]
+        update customer                [C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT] WHERE [C_W_ID, C_D_ID, C_ID]
+		insert history                 [*]
+
+
+4) 	Stock Level Transaction
+		select district               [D_NEXT_O_ID] WHERE [D_W_ID, D_ID]
+		select order_line, stock      [S_I_ID] WHERE [OL_W_ID, OL_D_ID, OL_O_ID, OL_O_ID, S_W_ID, S_I_ID, OL_I_ID, S_QUANTITY]
+
+5) 	Order Status Transaction
+		select open_order             [O_ID, O_CARRIER_ID, O_ENTRY_D] WHERE [O_W_ID, O_D_ID, O_C_ID]
+		select order_line             [OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DELIVERY_D] WHERE [OL_O_ID, OL_D_ID, OL_W_ID]
+		select customer               [C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT,
+                                        C_CREDIT_LIM, C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE]
+                                        WHERE [C_W_ID, C_D_ID, C_ID]
